@@ -1,0 +1,31 @@
+{
+  "name": "checkin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zanedb/checkin.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zanedb/checkin/issues"
+  },
+  "homepage": "https://github.com/zanedb/checkin#readme",
+  "dependencies": {
+    "express": "~4.16.3",
+    "mongoose": "~5.1.3",
+    "body-parser": "~1.18.3",
+    "ip": "1.1.5"
+  },
+  "devDependencies": {
+    "nodemon": "~1.17.5"
+  }
+}
