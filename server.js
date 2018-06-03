@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const Attendee = require('./app/models/attendee');
 const ip = require("ip");
+const opn = require('opn');
 const path = require('path');
 const fs = require('fs');
 
@@ -77,3 +78,4 @@ server.use('/api', router);
 server.listen(port);
 console.log('Running locally at http://localhost:'+port)
 console.log('Running on your network at http://'+ip.address()+':'+port);
+opn('http://localhost:'+port)
