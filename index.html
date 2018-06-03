@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Hack Chicago QR</title>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+
+    <h2>Hack Chicago Kiosk</h2>
+    <input type="file" name="roster" id="roster">
+
+    <button onclick="parse()">Load</button>
+
+
+    <div id="output"></div>
+
+    <br /><br />
+    <div id="qrcode"></div>
+    <br />
+    <textarea id="hex">UID OUTPUT</textarea>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script src="csv.js"></script>
+    <script src="qr.js"></script>
+    <script src="kiosk.js"></script>
+  </body>
+</html>

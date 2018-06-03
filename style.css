@@ -1,0 +1,15 @@
+#hex {
+  width: 25rem;
+  height: auto;
+  min-height: 10rem;
+
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+}
+
+#qrcode {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
