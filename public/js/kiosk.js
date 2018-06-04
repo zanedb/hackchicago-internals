@@ -15,6 +15,12 @@ $(document).ready(function() {
 
 function toggle(element) {
   $(element).toggle();
+  if (element == '#qrcode') {
+    if ($(element).css('display') == 'none')
+      $('#toggleQR').html('Show QR Code');
+    else
+      $('#toggleQR').html('Hide QR Code');
+  }
 }
 
 var master = [];
@@ -53,7 +59,7 @@ String.prototype.hexEncode = function(){
 
 function display(data) {
 
-  var txt = "";
+  var txt = `<button id="toggleQR" onclick="toggle('#qrcode')">Hide QR Code</button><br>`;
   for (var i = 0; i < data.length; i++) {
     txt += data[i][1] + " - " + data[i][2] + " - " + data[i][3] + "&emsp;<button onClick=\"generateQR(" + i + ")\">Generate QR</button><br />";
   }
