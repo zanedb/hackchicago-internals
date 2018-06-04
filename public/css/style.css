@@ -3,6 +3,15 @@
 
 body {
   font-family: 'Roboto', sans-serif;
+  text-align: center;
+}
+
+ul {
+  text-align: left;
+}
+
+#roster {
+  width: 100%;
 }
 
 #hex {
