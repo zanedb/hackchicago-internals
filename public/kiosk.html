@@ -9,18 +9,35 @@
   <body>
 
     <h2>Hack Chicago Kiosk</h2>
-    <h3>Please upload a CSV file in the proper data type.</h3>
-    <input type="file" name="roster" id="roster">
-
-    <button onclick="parse()">Load</button>
-
-
-    <div id="output"></div>
-
-    <br /><br />
-    <div id="qrcode"></div>
-    <br />
-    <textarea id="hex">UID OUTPUT</textarea>
+    <div id="options" style="display:inline;">
+      <h3>What would you like to do?</h3>
+      <ul>
+        <li><h4><a href="javascript: toggle('#add');">Add attendees</a></h4></li>
+        <li><h4><a href="javascript: toggle('#view');">View attendees</a></h4></li>
+      </ul>
+    </div>
+    <div id="add" style="display:none;">
+      <h4 id="status">Add attendees below:</h4>
+      <ul>
+        <li><h5><a href="javascript: toggle('#csv_add');">Upload a CSV to be processed</a></h5></li>
+        <div id="csv_add" style="display:none;">
+          <input type="file" name="roster" id="roster">
+          <button onclick="parse()">Load</button>
+          <br><br>
+          <div id="output"></div>
+          <div id="qrcode"></div>
+          <textarea id="hex">UID OUTPUT</textarea>
+        </div>
+        <li><h5><a href="javascript: toggle('#single_add');">Create a single attendee</a></h5></li>
+        <div id="single_add" style="display:none;">
+          TODO
+        </div>
+      </ul>
+    </div>
+    <div id="view" style="display:none;">
+      <h4>Attendees:</h4>
+      <h5>TODO</h5>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
     <script src="js/csv.js"></script>

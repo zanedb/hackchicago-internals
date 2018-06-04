@@ -1,3 +1,22 @@
+// on load
+$(document).ready(function() {
+  fetch('/api/attendees')
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(json) {
+      if(json.error == "No attendees found") {
+        // no attendees available
+        $('#status').text('No attendees available, add some below:');
+        $('#add').show();
+      }
+    });
+});
+
+function toggle(element) {
+  $(element).toggle();
+}
+
 var master = [];
 
 function parse() {

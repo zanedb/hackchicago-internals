@@ -65,8 +65,8 @@ router.route('/attendees')
   })
   // get all the attendees (accessed at GET http://localhost:3000/api/attendees)
   .get(function(req, res) {
-    // TODO
-    res.json({ message: 'TODO: Implement this' });
+    // TODO make this load attendees
+    res.status(404).json({ error: 'No attendees found' });
   });
 
 // setup files to be served
@@ -78,4 +78,4 @@ server.use('/api', router);
 server.listen(port);
 console.log('Running locally at http://localhost:'+port)
 console.log('Running on your network at http://'+ip.address()+':'+port);
-opn('http://localhost:'+port)
+//opn('http://localhost:'+port)
