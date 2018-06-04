@@ -24,12 +24,6 @@ ul {
   right: 5px;
 }
 
-@media (max-width: 440px) {
-  #hex {
-    display: none;
-  }
-}
-
 #qrcode {
   position: fixed;
   top: 5px;
