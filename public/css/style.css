@@ -1,3 +1,10 @@
+/* FONTS */
+@import url('../fonts/Roboto.ttf');
+
+body {
+  font-family: 'Roboto', sans-serif;
+}
+
 #hex {
   width: 25rem;
   height: auto;
