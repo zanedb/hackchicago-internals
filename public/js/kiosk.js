@@ -69,6 +69,9 @@ function display(data) {
 
 
 function generateQR(id) {
+  // force QR code to display when new QR code is generated
+  $('#toggleQR').html('Hide QR Code');
+  $('#qrcode').show();
   var confString = ("hackchicago2018" + "/" + master[id][1] + "/" + master[id][2] + "/" + master[id][3]).toUpperCase().hexEncode();
   $('#qrcode').html("");
   $('#qrcode').qrcode(confString);
