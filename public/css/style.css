@@ -3,11 +3,6 @@
 
 body {
   font-family: 'Roboto', sans-serif;
-  text-align: center;
-}
-
-ul {
-  text-align: left;
 }
 
 #roster {
@@ -22,6 +17,16 @@ ul {
   position: absolute;
   bottom: 5px;
   right: 5px;
+}
+
+@media (max-width: 500px) {
+  body {
+    text-align: center;
+  }
+
+  ul {
+    text-align: left;
+  }
 }
 
 #qrcode {
