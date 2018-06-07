@@ -1,9 +1,11 @@
 // TODO
-// 1. remove QR code display (use API call that uploads all data, then generate QR codes server-side (firebase))
-// 2. add link to view/hide attendee preview and then add upload button (uploads attendees in JSON format to API, which uploads to firebase)
-// 3. handle empty attendees db
-// 4. add check in functionality
-// 5. add option to update user data
+// Refresh list when attendees are added
+// Add option to edit attendee data
+// Add option to create attendees
+// Fix QR code generation
+// Rename /kiosk to /attendees
+// Handle case of empty database
+// Add checkin page
 
 // initialize firebase
 var config = {
