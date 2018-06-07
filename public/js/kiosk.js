@@ -59,18 +59,6 @@ $(document).ready(function() {
       $('#login-status').html('You\'re not logged in.<br/><button onclick="toggleSignIn();">Log In with Google</button>')
     }
   });
-
-  fetch('/api/attendees')
-    .then(function(response) {
-      return response.json();
-    })
-    .then(function(json) {
-      if(json.error == "No attendees found") {
-        // no attendees available
-        $('#status').text('No attendees available, add some below:');
-        $('#add').show();
-      }
-    });
 });
 
 // login/signout user
