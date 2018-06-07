@@ -55,6 +55,7 @@ function parse() {
   }
 }
 
+// BELOW TWO FUNCTIONS: https://stackoverflow.com/a/21648161
 // encode text to hex
 String.prototype.hexEncode = function(){
   var hex, i;
@@ -65,6 +66,17 @@ String.prototype.hexEncode = function(){
   }
 
   return result;
+}
+// decode hex to text
+String.prototype.hexDecode = function(){
+  var j;
+  var hexes = this.match(/.{1,4}/g) || [];
+  var back = "";
+  for(j = 0; j<hexes.length; j++) {
+    back += String.fromCharCode(parseInt(hexes[j], 16));
+  }
+
+  return back;
 }
 
 function display(data) {
