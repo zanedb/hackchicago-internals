@@ -161,7 +161,7 @@ function display(data) {
 function uploadData() {
   if (master[0] != null) {
     $('#uploadAttendeesStatus').text('Uploading..');
-    let isError = false;
+    let errorCode = '';
     for (let i = 0; i < master.length; i++) {
       // set user vars
       let fname = master[i][1];
@@ -178,14 +178,12 @@ function uploadData() {
         hexEncoded: hexEncoded,
         hexDecoded: hexDecoded
       }).catch(function(error) {
-        isError = true;
+        $('#uploadAttendeesStatus').text('Error: '+error.code);
       });
     }
+    console.log(errorCode)
     // display results of operation
-    if (!isError)
-      $('#uploadAttendeesStatus').text('Successfully uploaded!');
-    else
-      $('#uploadAttendeesStatus').text('An error occurred, perhaps you don\'t have access.');
+    if ($('#uploadAttendeesStatus').text() === 'Uploading..') $('#uploadAttendeesStatus').text('Successfully uploaded!');
   } else {
     alert('No data available!')
   }
