@@ -1,5 +1,4 @@
 // TODO
-// Refresh list when attendees are added
 // Add option to edit attendee data
 // Add option to create attendees
 // Fix QR code generation
@@ -95,8 +94,7 @@ function toggle(element) {
     else
       $('#toggleOutput').html('Hide Output');
   }
-  if (element == '#view' && $(element).css('display') !== 'none')
-    loadData();
+  if (element == '#view' && $(element).css('display') !== 'none') loadData();
 }
 
 var master = [];
@@ -178,7 +176,11 @@ function uploadData() {
     }
     console.log(errorCode)
     // display results of operation
-    if ($('#uploadAttendeesStatus').text() === 'Uploading..') $('#uploadAttendeesStatus').text('Successfully uploaded!');
+    if ($('#uploadAttendeesStatus').text() === 'Uploading..') {
+      $('#uploadAttendeesStatus').text('Successfully uploaded!');
+      // if "view attendees" pane is open, refresh data to show new uploads
+      if ($('#view').css('display') !== 'none') loadData();
+    }
   } else {
     alert('No data available!')
   }
