@@ -92,7 +92,7 @@ String.prototype.hexDecode = function(){
 }
 
 function display(data) {
-  let attendeeListHTML = '<button id="uploadAttendees" onclick="uploadData();">Upload Attendees</button><div id="uploadAttendeesStatus">(BE CAREFUL, this will overwrite existing data)</div><br/>';
+  let attendeeListHTML = '<button id="uploadAttendees" onclick="uploadData();">Upload Attendees</button><div id="uploadAttendeesStatus"></div><br/>';
   for (let i = 0; i < data.length; i++) {
     attendeeListHTML += data[i][1] /* <- first name */ + " " + data[i][2] /* <- last name */ + " - " + data[i][3] /* <- email */ + "&emsp;<br/><br/>";
   }
@@ -103,35 +103,32 @@ function display(data) {
 function uploadData() {
   if (master[0] != null) {
     $('#uploadAttendeesStatus').text('Uploading..');
-    let attendees = new Array();
+    let isError = false;
     for (let i = 0; i < master.length; i++) {
-      let attendee = new Object();
       // set user vars
-      attendee.fname = master[i][1];
-      attendee.lname = master[i][2];
-      attendee.email = master[i][3];
-      attendee.hexEncoded = ("hackchicago2018" + "/" + attendee.fname + "/" + attendee.lname + "/" + attendee.email).toUpperCase().hexEncode().toUpperCase();
-      attendee.hexDecoded = attendee.hexEncoded.hexDecode();
+      let fname = master[i][1];
+      let lname = master[i][2];
+      let email = master[i][3];
+      let hexEncoded = ("hackchicago2018" + "/" + fname + "/" + lname + "/" + email).toUpperCase().hexEncode().toUpperCase();
+      let hexDecoded = hexEncoded.hexDecode();
 
-      let jsonString = '{"'+attendee.hexEncoded+'":{"email":"'+attendee.email+'","fname":"'+attendee.fname+'","lname":"'+attendee.lname+'","hexDecoded":"'+attendee.hexDecoded+'","hexEncoded":"'+attendee.hexEncoded+'"}';
-      // add new attendee object to array
-      attendees.push(JSON.parse(jsonString));
+      // upload attendee data to Firebase
+      firebase.database().ref('attendees/' + hexEncoded).set({
+        fname: fname,
+        lname: lname,
+        email: email,
+        hexEncoded: hexEncoded,
+        hexDecoded: hexDecoded
+      }).catch(function(error) {
+        isError = true;
+      });
     }
-    // upload attendee data to Firebase
-    firebase.database().ref('/').set({
-      attendees: attendees
-    }).then(function() {
+    // display results of operation
+    if (!isError)
       $('#uploadAttendeesStatus').text('Successfully uploaded!');
-    }).catch(function(error) {
+    else
       $('#uploadAttendeesStatus').text('An error occurred.');
-    });
   } else {
-    alert('No data available!');
+    alert('No data available!')
   }
-}
-
-function readData() {
-  return firebase.database().ref('/attendees').once('value').then(function(snapshot) {
-    console.log(snapshot.val());
-  });
 }
