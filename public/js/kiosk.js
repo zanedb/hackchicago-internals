@@ -195,7 +195,10 @@ function loadData() {
         let email = childSnapshot.child('email').val();
         let hexEncoded = childSnapshot.child('hexEncoded').val();
 
-        $('#view-output').append(`<li><a href="javascript: expandAttendee('`+hexEncoded+`')">`+fname+` `+lname+`</a></li><div class="hidden" id="attendee-`+hexEncoded+`"><br/>First Name: `+fname+`<br/>Last Name: `+lname+`<br/>Email: <a href="mailto:`+email+`">`+email+`</a><br/>QR Code: <div style="text-decoration: underline;" id="attendee-qrcode-`+hexEncoded+`">Loading..</div></div><br/>`);
+        $('#view-output').append(`<li><a href="javascript: expandAttendee('`+hexEncoded+`')">`+fname+` `+lname+`</a></li>
+        <div class="hidden" id="attendee-`+hexEncoded+`"><br/>First Name: `+fname+`<br/>Last Name: `+lname+`<br/>Email: <a href="mailto:`+email+`">`+email+`</a>
+        <br/>QR Code: <div style="text-decoration: underline;" id="attendee-qrcode-`+hexEncoded+`">Loading..</div>
+        <br/><button onclick="deleteAttendee('`+hexEncoded+`')">Delete Attendee</button><h5 id="attendee-status-`+hexEncoded+`"></h5></div><br/>`);
       });
     }).catch(function(error) {
       $('#view-status').text('Error: '+error.code);
@@ -214,7 +217,12 @@ function expandAttendee(id) {
 }
 
 function deleteAttendee(id) {
-
+  // delete attendee
+  firebase.database().ref('attendees/' + id).remove().catch(function(error) {
+    $('attendee-status-'+id).text('Error: '+error.code);
+  });
+  // refresh list
+  loadData();
 }
 
 function editAttendee(id) {
