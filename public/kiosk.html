@@ -9,40 +9,45 @@
   <body>
 
     <h2>Hack Chicago Kiosk</h2>
-    <div id="options" style="display:inline;">
-      <h3>What would you like to do?</h3>
-      <ul>
-        <li><h4><a href="javascript: toggle('#add');">Add attendees</a></h4></li>
-        <li><h4><a href="javascript: toggle('#view');">View attendees</a></h4></li>
-        <li><h4><a href="/">Return home</a></h4></li>
-      </ul>
-    </div>
-    <div id="add" style="display:none;">
-      <h4 id="status">Add attendees below:</h4>
-      <ul>
-        <li><h5><a href="javascript: toggle('#csv_add');">Upload a CSV to be processed</a></h5></li>
-        <div id="csv_add" style="display:none;">
-          <input type="file" name="roster" id="roster">
-          <button onclick="parse()">Load</button>
-          <br/><br/>
-          <a href="javascript: toggle('#output')" id="toggleOutput">Hide Output</a>
-          <br/><br/>
-          <div id="output"></div>
-        </div>
-        <li><h5><a href="javascript: toggle('#single_add');">Create a single attendee</a></h5></li>
-        <div id="single_add" style="display:none;">
-          TODO
-        </div>
-      </ul>
-    </div>
-    <div id="view" style="display:none;">
-      <h4>Attendees:</h4>
-      <h5>TODO</h5>
+    <h3 id="login-error"></h3>
+    <h3 id="login-status">Loading..</h3>
+    <div id="all">
+      <div id="options" style="display:inline;">
+        <h3>What would you like to do?</h3>
+        <ul>
+          <li><h4><a href="javascript: toggle('#add');">Add attendees</a></h4></li>
+          <li><h4><a href="javascript: toggle('#view');">View attendees</a></h4></li>
+          <li><h4><a href="/">Return home</a></h4></li>
+        </ul>
+      </div>
+      <div id="add" style="display:none;">
+        <h4 id="status">Add attendees below:</h4>
+        <ul>
+          <li><h5><a href="javascript: toggle('#csv_add');">Upload a CSV to be processed</a></h5></li>
+          <div id="csv_add" style="display:none;">
+            <input type="file" name="roster" id="roster">
+            <button onclick="parse()">Load</button>
+            <br/><br/>
+            <a href="javascript: toggle('#output')" id="toggleOutput">Hide Output</a>
+            <br/><br/>
+            <div id="output"></div>
+          </div>
+          <li><h5><a href="javascript: toggle('#single_add');">Create a single attendee</a></h5></li>
+          <div id="single_add" style="display:none;">
+            TODO
+          </div>
+        </ul>
+      </div>
+      <div id="view" style="display:none;">
+        <h4>Attendees:</h4>
+        <h5>TODO</h5>
+      </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/5.0.4/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/5.0.4/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.0.4/firebase-auth.js"></script>
     <script src="js/csv.js"></script>
     <script src="js/kiosk.js"></script>
   </body>

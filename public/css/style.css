@@ -5,6 +5,10 @@ body {
   font-family: 'Roboto', sans-serif;
 }
 
+#all {
+  display: none;
+}
+
 #roster {
   width: 100%;
 }

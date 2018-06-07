@@ -12,10 +12,54 @@ var config = {
   messagingSenderId: "264691182006"
 };
 firebase.initializeApp(config);
+// initialize db
 const database = firebase.database();
 
 // on load
 $(document).ready(function() {
+  // check for redirect token
+  firebase.auth().getRedirectResult().then(function(result) {
+    if (result.credential) {
+      // get Google Access Token
+      let googleAccessToken = result.credential.accessToken;
+      console.log('Logged in with email ' + result.user.email + ' and token '+googleAccessToken+'.');
+    } else {
+      console.log('Logged in with email '+result.user.email+' and no access token.');
+    }
+    // signed-in user info
+    let user = result.user;
+  }).catch(function(error) {
+    // handle error
+    if (error.code === 'auth/account-exists-with-different-credential') {
+      alert('You have already signed up with a different auth provider for that email. This error should not occur.');
+    } else if (error.code === 'auth/user-disabled') {
+      $('#login-error').text('Your account is disabled :/');
+    } else if (error.code !== undefined) {
+      $('#login-error').text('An error occurred: '+error.code+'.');
+    }
+  });
+
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+      // User is signed in.
+      var displayName = user.displayName;
+      var email = user.email;
+      var emailVerified = user.emailVerified;
+      var photoURL = user.photoURL;
+      var uid = user.uid;
+      var providerData = user.providerData;
+      if (email.split('@')[1] !== 'hackchicago.io') {
+        $('#login-status').html('Error: Please login with a <u>hackchicago.io</u> email address.<br/><button onclick="toggleSignIn();">Sign Out</button>')
+      } else {
+        $('#login-status').html('Welcome, <u>'+displayName+'</u>! You\'re logged in as <u>'+email+'</u>.<br/><button onclick="toggleSignIn();">Sign Out</button>');
+        $('#all').show();
+      }
+    } else {
+      // User is signed out.
+      $('#login-status').html('You\'re not logged in.<br/><button onclick="toggleSignIn();">Log In with Google</button>')
+    }
+  });
+
   fetch('/api/attendees')
     .then(function(response) {
       return response.json();
@@ -28,6 +72,20 @@ $(document).ready(function() {
       }
     });
 });
+
+// login/signout user
+function toggleSignIn() {
+  if (!firebase.auth().currentUser) {
+    let provider = new firebase.auth.GoogleAuthProvider();
+    provider.addScope('https://www.googleapis.com/auth/plus.login');
+    // redirect user to signin
+    firebase.auth().signInWithRedirect(provider);
+  } else {
+    // if user is signed in, sign out
+    firebase.auth().signOut();
+    $('#all').hide();
+  }
+}
 
 function toggle(element) {
   $(element).toggle();
@@ -127,7 +185,7 @@ function uploadData() {
     if (!isError)
       $('#uploadAttendeesStatus').text('Successfully uploaded!');
     else
-      $('#uploadAttendeesStatus').text('An error occurred.');
+      $('#uploadAttendeesStatus').text('An error occurred, perhaps you don\'t have access.');
   } else {
     alert('No data available!')
   }
