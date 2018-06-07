@@ -2,6 +2,18 @@
 // 1. remove QR code display (use API call that uploads all data, then generate QR codes server-side (firebase))
 // 2. add link to view/hide attendee preview and then add upload button (uploads attendees in JSON format to API, which uploads to firebase)
 
+// initialize firebase
+var config = {
+  apiKey: "AIzaSyDEzPcXyHB7_eutmvxMKnDI_Yu5XgRpBoY",
+  authDomain: "hackchicago-internals.firebaseapp.com",
+  databaseURL: "https://hackchicago-internals.firebaseio.com",
+  projectId: "hackchicago-internals",
+  storageBucket: "hackchicago-internals.appspot.com",
+  messagingSenderId: "264691182006"
+};
+firebase.initializeApp(config);
+const database = firebase.database();
+
 // on load
 $(document).ready(function() {
   fetch('/api/attendees')
@@ -19,7 +31,7 @@ $(document).ready(function() {
 
 function toggle(element) {
   $(element).toggle();
-  
+
   if (element == '#qrcode') {
     if ($(element).css('display') == 'none')
       $('#toggleQR').html('Show QR Code');
@@ -80,15 +92,39 @@ String.prototype.hexDecode = function(){
 }
 
 function display(data) {
-  let txt = '';
-  for (var i = 0; i < data.length; i++) {
-    txt += data[i][1] + " - " + data[i][2] + " - " + data[i][3] + "&emsp;<br/><br/>";
+  let attendeeListHTML = '<button id="uploadAttendees" onclick="uploadData();">Upload Attendees</button><div id="uploadAttendeesStatus"></div><br/>';
+  for (let i = 0; i < data.length; i++) {
+    attendeeListHTML += data[i][1] /* <- first name */ + " - " + data[i][2] /* <- last name */ + " - " + data[i][3] /* <- email */ + "&emsp;<br/><br/>";
   }
 
-  $("#output").html(txt);
+  $("#output").html(attendeeListHTML);
 }
 
+function uploadData() {
+  if (master[0] != null) {
+    $('#uploadAttendeesStatus').text('Uploading..');
+    let attendees = new Array();
+    for (let i = 0; i < master.length; i++) {
+      let attendee = new Object();
+      // set user vars
+      attendee.fname = master[i][1];
+      attendee.lname = master[i][2];
+      attendee.email = master[i][3];
+      attendee.hexEncoded = ("hackchicago2018" + "/" + attendee.fname + "/" + attendee.lname + "/" + attendee.email).toUpperCase().hexEncode().toUpperCase();
+      attendee.hexDecoded = attendee.hexEncoded.hexDecode();
 
-function generateHex(id) {
-  return ("hackchicago2018" + "/" + master[id][1] + "/" + master[id][2] + "/" + master[id][3]).toUpperCase().hexEncode();
+      // add new attendee object to array
+      attendees.push(attendee);
+    }
+    // upload attendee data to Firebase
+    firebase.database().ref('/').set({
+      attendees: attendees
+    }).then(function() {
+      $('#uploadAttendeesStatus').text('Successfully uploaded!');
+    }).catch(function(error) {
+      $('#uploadAttendeesStatus').text('An error occurred.');
+    });
+  } else {
+    alert('No data available!')
+  }
 }
