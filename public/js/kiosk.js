@@ -92,9 +92,9 @@ String.prototype.hexDecode = function(){
 }
 
 function display(data) {
-  let attendeeListHTML = '<button id="uploadAttendees" onclick="uploadData();">Upload Attendees</button><div id="uploadAttendeesStatus"></div><br/>';
+  let attendeeListHTML = '<button id="uploadAttendees" onclick="uploadData();">Upload Attendees</button><div id="uploadAttendeesStatus">(BE CAREFUL, this will overwrite existing data)</div><br/>';
   for (let i = 0; i < data.length; i++) {
-    attendeeListHTML += data[i][1] /* <- first name */ + " - " + data[i][2] /* <- last name */ + " - " + data[i][3] /* <- email */ + "&emsp;<br/><br/>";
+    attendeeListHTML += data[i][1] /* <- first name */ + " " + data[i][2] /* <- last name */ + " - " + data[i][3] /* <- email */ + "&emsp;<br/><br/>";
   }
 
   $("#output").html(attendeeListHTML);
@@ -113,8 +113,9 @@ function uploadData() {
       attendee.hexEncoded = ("hackchicago2018" + "/" + attendee.fname + "/" + attendee.lname + "/" + attendee.email).toUpperCase().hexEncode().toUpperCase();
       attendee.hexDecoded = attendee.hexEncoded.hexDecode();
 
+      let jsonString = '{"'+attendee.hexEncoded+'":{"email":"'+attendee.email+'","fname":"'+attendee.fname+'","lname":"'+attendee.lname+'","hexDecoded":"'+attendee.hexDecoded+'","hexEncoded":"'+attendee.hexEncoded+'"}';
       // add new attendee object to array
-      attendees.push(attendee);
+      attendees.push(JSON.parse(jsonString));
     }
     // upload attendee data to Firebase
     firebase.database().ref('/').set({
@@ -125,6 +126,12 @@ function uploadData() {
       $('#uploadAttendeesStatus').text('An error occurred.');
     });
   } else {
-    alert('No data available!')
+    alert('No data available!');
   }
+}
+
+function readData() {
+  return firebase.database().ref('/attendees').once('value').then(function(snapshot) {
+    console.log(snapshot.val());
+  });
 }
