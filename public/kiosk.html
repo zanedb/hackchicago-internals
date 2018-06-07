@@ -24,7 +24,9 @@
         <div id="csv_add" style="display:none;">
           <input type="file" name="roster" id="roster">
           <button onclick="parse()">Load</button>
-          <br><br>
+          <br/><br/>
+          <a href="javascript: toggle('#output')" id="toggleOutput">Hide Output</a>
+          <br/><br/>
           <div id="output"></div>
         </div>
         <li><h5><a href="javascript: toggle('#single_add');">Create a single attendee</a></h5></li>

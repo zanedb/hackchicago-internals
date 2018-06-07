@@ -19,11 +19,18 @@ $(document).ready(function() {
 
 function toggle(element) {
   $(element).toggle();
+  
   if (element == '#qrcode') {
     if ($(element).css('display') == 'none')
       $('#toggleQR').html('Show QR Code');
     else
       $('#toggleQR').html('Hide QR Code');
+  }
+  if (element == '#output') {
+    if ($(element).css('display') == 'none')
+      $('#toggleOutput').html('Show Output');
+    else
+      $('#toggleOutput').html('Hide Output');
   }
 }
 
