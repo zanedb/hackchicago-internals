@@ -1,6 +1,9 @@
 // TODO
 // 1. remove QR code display (use API call that uploads all data, then generate QR codes server-side (firebase))
 // 2. add link to view/hide attendee preview and then add upload button (uploads attendees in JSON format to API, which uploads to firebase)
+// 3. handle empty attendees db
+// 4. add check in functionality
+// 5. add option to update user data
 
 // initialize firebase
 var config = {
@@ -90,6 +93,8 @@ function toggle(element) {
     else
       $('#toggleOutput').html('Hide Output');
   }
+  if (element == '#view' && $(element).css('display') !== 'none')
+    loadData();
 }
 
 var master = [];
@@ -175,4 +180,43 @@ function uploadData() {
   } else {
     alert('No data available!')
   }
+}
+
+function loadData() {
+  $('#view-output').html('');
+  $('#view-status').text('Loading..');
+
+  var query = firebase.database().ref('attendees/').orderByChild('fname');
+  query.once("value")
+    .then(function(snapshot) {
+      snapshot.forEach(function(childSnapshot) {
+        let fname = childSnapshot.child('fname').val();
+        let lname = childSnapshot.child('lname').val();
+        let email = childSnapshot.child('email').val();
+        let hexEncoded = childSnapshot.child('hexEncoded').val();
+
+        $('#view-output').append(`<li><a href="javascript: expandAttendee('`+hexEncoded+`')">`+fname+` `+lname+`</a></li><div class="hidden" id="attendee-`+hexEncoded+`"><br/>First Name: `+fname+`<br/>Last Name: `+lname+`<br/>Email: <a href="mailto:`+email+`">`+email+`</a><br/>QR Code: <div style="text-decoration: underline;" id="attendee-qrcode-`+hexEncoded+`">Loading..</div></div><br/>`);
+      });
+    }).catch(function(error) {
+      $('#view-status').text('Error: '+error.code);
+    });
+  $('#view-status').text('');
+}
+
+function expandAttendee(id) {
+  // display info
+  $('#attendee-'+id).toggle();
+  if ($('#attendee-'+id).css('display') !== 'none') {
+    // generate QR code
+    $('#attendee-qrcode-'+id).html('');
+    $('#attendee-qrcode-'+id).qrcode(id);
+  }
+}
+
+function deleteAttendee(id) {
+
+}
+
+function editAttendee(id) {
+
 }
