@@ -42,3 +42,11 @@ body {
 .hidden {
   display: none;
 }
+
+.buttons {
+  display: flex;
+}
+
+button.buttons {
+  flex: 1 1 auto;
+}

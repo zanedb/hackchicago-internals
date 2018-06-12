@@ -1,4 +1,5 @@
 // TODO
+// Handle no attendees
 // Add option to edit attendee data
 // Add option to create attendees
 // Fix QR code generation
@@ -199,14 +200,26 @@ function loadData() {
         let email = childSnapshot.child('email').val();
         let hexEncoded = childSnapshot.child('hexEncoded').val();
 
-        $('#view-output').append(`<li><a href="javascript: expandAttendee('`+hexEncoded+`')">`+fname+` `+lname+`</a></li>
-        <div class="hidden" id="attendee-`+hexEncoded+`"><br/>First Name: `+fname+`<br/>Last Name: `+lname+`<br/>Email: <a href="mailto:`+email+`">`+email+`</a>
-        <br/>QR Code: <div style="text-decoration: underline;" id="attendee-qrcode-`+hexEncoded+`">Loading..</div>
-        <br/><button onclick="deleteAttendee('`+hexEncoded+`')">Delete Attendee</button><h5 id="attendee-status-`+hexEncoded+`"></h5></div><br/>`);
+        // generate HTML for each attendee
+        $('#view-output').append(`
+          <li><a href="javascript: expandAttendee('`+hexEncoded+`')">`+fname+` `+lname+`</a></li>
+          <div class="hidden" id="attendee-`+hexEncoded+`">
+            <br/>First Name: `+fname+`
+            <br/>Last Name: `+lname+`
+            <br/>Email: <a href="mailto:`+email+`">`+email+`</a>
+            <br/>QR Code: <div style="text-decoration: underline;" id="attendee-qrcode-`+hexEncoded+`">Loading..</div>
+            <br/>
+            <div class="buttons">
+              <button onclick="deleteAttendee('`+hexEncoded+`')">Delete Attendee</button><h5 id="attendee-status-`+hexEncoded+`"></h5>
+              <!--<button onclick="editAttendee('`+hexEncoded+`', '`+fname+`', '`+lname+`', '`+email+`')" id="attendee-edit-`+hexEncoded+`">Edit Attendee</button>-->
+            </div>
+          </div><br/>
+        `);
       });
     }).catch(function(error) {
       $('#view-status').text('Error: '+error.code);
     });
+    //$('#view-status').html(`No attendees found.. <a href="javascript: toggle('#add');">Add some?</a>`);
   $('#view-status').text('');
 }
 
@@ -229,6 +242,6 @@ function deleteAttendee(id) {
   loadData();
 }
 
-function editAttendee(id) {
+function editAttendee(id, fname, lname, email) {
 
 }
