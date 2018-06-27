@@ -20,6 +20,8 @@ firebase.initializeApp(config);
 // initialize db
 const database = firebase.database();
 
+let auth_key = null;
+
 // on load
 $(document).ready(function() {
   // check for redirect token
@@ -46,19 +48,37 @@ $(document).ready(function() {
 
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
-      // User is signed in.
+      // user is signed in
       var displayName = user.displayName;
       var email = user.email;
       var emailVerified = user.emailVerified;
       var photoURL = user.photoURL;
       var uid = user.uid;
       var providerData = user.providerData;
-      if (email.split('@')[1] !== 'hackchicago.io') {
-        $('#login-status').html('Error: Please login with a <u>hackchicago.io</u> email address.<br/><button onclick="toggleSignIn();">Sign Out</button>')
-      } else {
-        $('#login-status').html('Welcome, <u>'+displayName+'</u>! You\'re logged in as <u>'+email+'</u>.<br/><button onclick="toggleSignIn();">Sign Out</button>');
-        $('#all').show();
-      }
+
+      // get Auth key
+      const query = firebase.database().ref('keys/');
+      query.once("value")
+        .then(function(snapshot) {
+          snapshot.forEach(function(childSnapshot) {
+            auth_key = childSnapshot.val();
+
+            if (email.split('@')[1] === 'hackchicago.io') {
+              if(auth_key !== null) {
+                // user can access an auth key
+                $('#login-status').html('Welcome, <u>'+displayName+'</u>! You\'re logged in as <u>'+email+'</u>.<br/><button onclick="toggleSignIn();">Sign Out</button>');
+                $('#all').show();
+              } else {
+                $('#login-status').html('Unfortunately, the email <u>'+email+'</u> does not have the required permissions.<br/><button onclick="toggleSignIn();">Sign Out</button>');
+                $('#all').show();
+              }
+            } else {
+              $('#login-status').html('Error: Please login with a <u>hackchicago.io</u> email address.<br/><button onclick="toggleSignIn();">Sign Out</button>');
+              $('#all').show();
+            }
+          });
+        });
+        
     } else {
       // User is signed out.
       $('#login-status').html('You\'re not logged in.<br/><button onclick="toggleSignIn();">Log In with Google</button>')
@@ -155,35 +175,45 @@ function display(data) {
 function uploadData() {
   if (master[0] != null) {
     $('#uploadAttendeesStatus').text('Uploading..');
-    let errorCode = '';
     for (let i = 0; i < master.length; i++) {
-      // set user vars
-      let fname = master[i][1];
-      let lname = master[i][2];
-      let email = master[i][3];
-      let hexEncoded = ("hackchicago2018" + "/" + fname + "/" + lname + "/" + email).toUpperCase().hexEncode().toUpperCase();
-      let hexDecoded = hexEncoded.hexDecode();
+      const attendeeData = {
+        timestamp: master[i][0],
+        fname: master[i][1],
+        lname: master[i][2],
+        email: master[i][3],
+        phone: master[i][4],
+        grade: master[i][5],
+        gender: master[i][6],
+        school: master[i][7],
+        city: master[i][8],
+        state: master[i][9],
+        shirtSize: master[i][10],
+        dietRestrictions: master[i][11],
+        note: master[i][12],
+        ref: master[i][13],
+        internalNotes: master[i][16]
+      };
 
-      // upload attendee data to Firebase
-      firebase.database().ref('attendees/' + hexEncoded).set({
-        fname: fname,
-        lname: lname,
-        email: email,
-        hexEncoded: hexEncoded,
-        hexDecoded: hexDecoded
-      }).catch(function(error) {
-        $('#uploadAttendeesStatus').text('Error: '+error.code);
-      });
-    }
-    console.log(errorCode)
-    // display results of operation
-    if ($('#uploadAttendeesStatus').text() === 'Uploading..') {
-      $('#uploadAttendeesStatus').text('Successfully uploaded!');
-      // if "view attendees" pane is open, refresh data to show new uploads
-      if ($('#view').css('display') !== 'none') loadData();
+      for(let i = 0; i < Object.keys(attendeeData).length; i++) {
+        if(attendeeData[Object.keys(attendeeData)[i]] == null) attendeeData[Object.keys(attendeeData)[i]] = '';
+      }
+
+      console.log(attendeeData);
+      fetch('https://hackchicago.herokuapp.com/api/v1/attendees', {
+        body: attendeeData,
+        headers: {
+          'Auth': auth_key
+        },
+        method: 'POST'
+      }).then(res => res.json())
+        .then(res => {
+          $('#uploadAttendeesStatus').text(res.message);
+          if(res.message === 'Attendee created!' && $('#view').css('display') !== 'none') loadData();
+        })
+        .catch(err => $('#uploadAttendeesStatus').text('Error: '+err));
     }
   } else {
-    alert('No data available!')
+    $('#uploadAttendeesStatus').text('No data available.')
   }
 }
 
@@ -191,53 +221,72 @@ function loadData() {
   $('#view-output').html('');
   $('#view-status').text('Loading..');
 
-  var query = firebase.database().ref('attendees/').orderByChild('fname');
-  query.once("value")
-    .then(function(snapshot) {
-      snapshot.forEach(function(childSnapshot) {
-        let fname = childSnapshot.child('fname').val();
-        let lname = childSnapshot.child('lname').val();
-        let email = childSnapshot.child('email').val();
-        let hexEncoded = childSnapshot.child('hexEncoded').val();
+  fetch('https://hackchicago.herokuapp.com/api/v1/attendees', {
+    headers: {
+      'Auth': auth_key
+    },
+    method: 'GET'
+  }).then(res => res.json())
+    .then(res => {
+      console.log('Success:', res)
+      for(let i = 0; i < res.length; i++) {
+        const fname = res[i].fname;
+        const lname = res[i].lname;
+        const email = res[i].email;
+        const phone = res[i].phone;
+        const location = `${res[i].city}, ${res[i].state}`;
+        const timestamp = res[i].timestamp;
+        const dietRestrictions = res[i].dietRestrictions;
+        const schoolInfo = `Grade ${res[i].grade} at ${res[i].school}`;
+        const gender = res[i].gender;
+
+        const hexEncoded = ("hackchicago2018" + "/" + fname + "/" + lname + "/" + email).toUpperCase().hexEncode().toUpperCase();
+        const id = res[i]._id;
 
         // generate HTML for each attendee
         $('#view-output').append(`
-          <li><a href="javascript: expandAttendee('`+hexEncoded+`')">`+fname+` `+lname+`</a></li>
-          <div class="hidden" id="attendee-`+hexEncoded+`">
-            <br/>First Name: `+fname+`
-            <br/>Last Name: `+lname+`
-            <br/>Email: <a href="mailto:`+email+`">`+email+`</a>
-            <br/>QR Code: <div style="text-decoration: underline;" id="attendee-qrcode-`+hexEncoded+`">Loading..</div>
+          <li><a href="javascript: expandAttendee('${id}', '${hexEncoded}')">${fname} ${lname}</a></li>
+          <div class="hidden" id="attendee-${id}">
+            <br/>Gender: ${gender}
+            <br/>Email: <a href="mailto:${email}">${email}</a>
+            ${phone !== '' ? `<br/>Phone: <a href="tel:${phone}">${phone}</a>` : ''}
+            <br/>Location: ${location}
+            <br/>Date of Signup: ${timestamp}
+            ${dietRestrictions !== '' ? `<br/><b>Diet Restrictions</b>: ${dietRestrictions}` : ''}
+            <br/>School Info: ${schoolInfo}
+            <br/>QR Code: <div style="text-decoration: underline;" id="attendee-qrcode-${id}">Loading..</div>
             <br/>
             <div class="buttons">
-              <button onclick="deleteAttendee('`+hexEncoded+`')">Delete Attendee</button><h5 id="attendee-status-`+hexEncoded+`"></h5>
-              <!--<button onclick="editAttendee('`+hexEncoded+`', '`+fname+`', '`+lname+`', '`+email+`')" id="attendee-edit-`+hexEncoded+`">Edit Attendee</button>-->
+              <button onclick="deleteAttendee('${id}')">Delete Attendee</button><h5 id="attendee-status-${id}"></h5>
+              <!--<button onclick="editAttendee('${id}', '${fname}', '${lname}', '${email}')" id="attendee-edit-${id}">Edit Attendee</button>-->
             </div>
           </div><br/>
         `);
-      });
-    }).catch(function(error) {
-      $('#view-status').text('Error: '+error.code);
-    });
+        $('#view-status').text('');
+      }
+    })
+    .catch(err => $('#view-status').text('Error: '+err));
     //$('#view-status').html(`No attendees found.. <a href="javascript: toggle('#add');">Add some?</a>`);
-  $('#view-status').text('');
 }
 
-function expandAttendee(id) {
+function expandAttendee(id, hexEncoded) {
   // display info
   $('#attendee-'+id).toggle();
   if ($('#attendee-'+id).css('display') !== 'none') {
     // generate QR code
     $('#attendee-qrcode-'+id).html('');
-    $('#attendee-qrcode-'+id).qrcode(id);
+    $('#attendee-qrcode-'+id).qrcode(hexEncoded);
   }
 }
 
 function deleteAttendee(id) {
   // delete attendee
-  firebase.database().ref('attendees/' + id).remove().catch(function(error) {
-    $('attendee-status-'+id).text('Error: '+error.code);
-  });
+  fetch(`https://hackchicago.herokuapp.com/api/v1/attendees/id/${id}`, {
+    headers: {
+      'Auth': auth_key
+    },
+    method: 'DELETE'
+  }).catch(err => $('attendee-status-'+id).text(`Error: ${err}`));
   // refresh list
   loadData();
 }

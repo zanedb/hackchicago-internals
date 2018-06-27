@@ -35,4 +35,4 @@ server.use(express.static(publicdir));
 server.listen(port);
 console.log('Running locally at http://localhost:'+port)
 console.log('Running on your network at http://'+ip.address()+':'+port);
-//opn('http://localhost:'+port)
+opn('http://localhost:'+port);
