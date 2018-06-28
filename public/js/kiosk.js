@@ -218,7 +218,6 @@ function uploadData() {
 }
 
 function loadData() {
-  $('#attendeeSearch').val('');
   $('#view-output').html('');
   $('#view-status').text('Loading..');
 
@@ -230,7 +229,11 @@ function loadData() {
   }).then(res => res.json())
     .then(resJson => { 
       apiCallData = resJson;
-      displayData(apiCallData);
+
+      if($('#attendeeSearch').val() !== '')
+        search($('#attendeeSearch').val(), apiCallData);
+      else
+        displayData(apiCallData);
     })
     .catch(err => $('#view-status').text('Error: '+err));
     //$('#view-status').html(`No attendees found.. <a href="javascript: toggle('#add');">Add some?</a>`);
@@ -238,7 +241,11 @@ function loadData() {
 
 $('#attendeeSearch').on('input', function() {
   const search = $('#attendeeSearch').val(); 
-  if(search !== '') {
+  search(search, apiCallData);
+});
+
+function search(query, data) {
+  if(query !== '') {
     const options = {
       shouldSort: true,
       threshold: 0.2,
@@ -256,8 +263,8 @@ $('#attendeeSearch').on('input', function() {
         "state"
       ]
     };
-    const fuse = new Fuse(apiCallData, options);
-    const fuseSearchData = fuse.search(search);
+    const fuse = new Fuse(data, options);
+    const fuseSearchData = fuse.search(query);
     if(fuseSearchData.length !== 0) {
       displayData(fuseSearchData);
     } else {
@@ -265,9 +272,9 @@ $('#attendeeSearch').on('input', function() {
       $('#view-status').text('No results found');
     }
   } else {
-    displayData(apiCallData);
+    displayData(data);
   }
-});
+}
 
 function displayData(res) {
   $('#view-output').html('');
