@@ -7,7 +7,6 @@
 // Handle case of empty database
 // Add checkin page
 
-// KEEP SCROLL POSITION TOO FOR NEW SEARCHES
 // USE ENTER KEY
 
 // initialize firebase
