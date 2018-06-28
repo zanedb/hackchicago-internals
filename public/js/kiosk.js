@@ -246,6 +246,11 @@ $('#attendeeSearch').on('input', function() {
 
 function search(query, data) {
   if(query !== '') {
+    // go through and add "fullname" param that concatenates first + last name, for search purposes
+    for(let i = 0; i<data.length;i++) {
+      data[i].fullname = `${data[i].fname} ${data[i].lname}`;
+    }
+    // fuse options
     const options = {
       shouldSort: true,
       threshold: 0.2,
@@ -256,13 +261,13 @@ function search(query, data) {
       keys: [
         "_id",
         "school",
-        "fname",
-        "lname",
+        "fullname",
         "email",
         "city",
         "state"
       ]
     };
+    // perform search & display results
     const fuse = new Fuse(data, options);
     const fuseSearchData = fuse.search(query);
     if(fuseSearchData.length !== 0) {
