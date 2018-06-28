@@ -292,6 +292,7 @@ function displayData(res) {
     const schoolInfo = `Grade ${res[i].grade} at ${res[i].school}`;
     const gender = res[i].gender;
     const internalNotes = res[i].internalNotes;
+    const note = res[i].note;
 
     const hexEncoded = ("hackchicago2018" + "/" + fname + "/" + lname + "/" + email).toUpperCase().hexEncode().toUpperCase();
     const id = res[i]._id;
@@ -307,6 +308,7 @@ function displayData(res) {
         <br/>Date of Signup: ${timestamp}
         ${dietRestrictions !== '' ? `<br/><b>Diet Restrictions</b>: ${dietRestrictions}` : ''}
         <br/>School Info: ${schoolInfo}
+        ${note !== '' ? `<br/><b>Note</b>: ${note}` : ''}
         ${internalNotes !== '' ? `<br/><b>Internal Notes</b>: ${internalNotes}` : ''}
         <br/>QR Code: <div style="text-decoration: underline;" id="attendee-qrcode-${id}">Loading..</div>
         <br/>
