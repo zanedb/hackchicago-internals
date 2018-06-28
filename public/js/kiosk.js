@@ -240,8 +240,8 @@ function loadData() {
 }
 
 $('#attendeeSearch').on('input', function() {
-  const search = $('#attendeeSearch').val(); 
-  search(search, apiCallData);
+  const searchQuery = $('#attendeeSearch').val(); 
+  search(searchQuery, apiCallData);
 });
 
 function search(query, data) {
