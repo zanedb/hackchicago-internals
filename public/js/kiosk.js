@@ -21,6 +21,7 @@ firebase.initializeApp(config);
 const database = firebase.database();
 
 let auth_key = null;
+let apiCallData = null;
 
 // on load
 $(document).ready(function() {
@@ -218,6 +219,7 @@ function uploadData() {
 }
 
 function loadData() {
+  $('#attendeeSearch').val('');
   $('#view-output').html('');
   $('#view-status').text('Loading..');
 
@@ -227,46 +229,91 @@ function loadData() {
     },
     method: 'GET'
   }).then(res => res.json())
-    .then(res => {
-      console.log('Success:', res)
-      for(let i = 0; i < res.length; i++) {
-        const fname = res[i].fname;
-        const lname = res[i].lname;
-        const email = res[i].email;
-        const phone = res[i].phone;
-        const location = `${res[i].city}, ${res[i].state}`;
-        const timestamp = res[i].timestamp;
-        const dietRestrictions = res[i].dietRestrictions;
-        const schoolInfo = `Grade ${res[i].grade} at ${res[i].school}`;
-        const gender = res[i].gender;
-
-        const hexEncoded = ("hackchicago2018" + "/" + fname + "/" + lname + "/" + email).toUpperCase().hexEncode().toUpperCase();
-        const id = res[i]._id;
-
-        // generate HTML for each attendee
-        $('#view-output').append(`
-          <li><a href="javascript: expandAttendee('${id}', '${hexEncoded}')">${fname} ${lname}</a></li>
-          <div class="hidden" id="attendee-${id}">
-            <br/>Gender: ${gender}
-            <br/>Email: <a href="mailto:${email}">${email}</a>
-            ${phone !== '' ? `<br/>Phone: <a href="tel:${phone}">${phone}</a>` : ''}
-            <br/>Location: ${location}
-            <br/>Date of Signup: ${timestamp}
-            ${dietRestrictions !== '' ? `<br/><b>Diet Restrictions</b>: ${dietRestrictions}` : ''}
-            <br/>School Info: ${schoolInfo}
-            <br/>QR Code: <div style="text-decoration: underline;" id="attendee-qrcode-${id}">Loading..</div>
-            <br/>
-            <div class="buttons">
-              <button onclick="deleteAttendee('${id}')">Delete Attendee</button><h5 id="attendee-status-${id}"></h5>
-              <!--<button onclick="editAttendee('${id}', '${fname}', '${lname}', '${email}')" id="attendee-edit-${id}">Edit Attendee</button>-->
-            </div>
-          </div><br/>
-        `);
-        $('#view-status').text('');
-      }
+    .then(resJson => { 
+      apiCallData = resJson;
+      displayData(apiCallData);
     })
     .catch(err => $('#view-status').text('Error: '+err));
     //$('#view-status').html(`No attendees found.. <a href="javascript: toggle('#add');">Add some?</a>`);
+}
+
+$('#attendeeSearch').on('input', function() {
+  const search = $('#attendeeSearch').val(); 
+  if(search !== '') {
+    const options = {
+      shouldSort: true,
+      threshold: 0.2,
+      location: 0,
+      distance: 100,
+      maxPatternLength: 32,
+      minMatchCharLength: 1,
+      keys: [
+        "_id",
+        "school",
+        "fname",
+        "lname",
+        "email",
+        "city",
+        "state"
+      ]
+    };
+    const fuse = new Fuse(apiCallData, options);
+    const fuseSearchData = fuse.search(search);
+    if(fuseSearchData.length !== 0) {
+      displayData(fuseSearchData);
+    } else {
+      $('#view-output').html('');
+      $('#view-status').text('No results found');
+    }
+  } else {
+    displayData(apiCallData);
+  }
+});
+
+function displayData(res) {
+  $('#view-output').html('');
+  $('#view-status').text('Loading..');
+  let htmlOutput = '';
+
+  console.log('Success:', res)
+  for(let i = 0; i < res.length; i++) {
+    const fname = res[i].fname;
+    const lname = res[i].lname;
+    const email = res[i].email;
+    const phone = res[i].phone;
+    const location = `${res[i].city}, ${res[i].state}`;
+    const timestamp = res[i].timestamp;
+    const dietRestrictions = res[i].dietRestrictions;
+    const schoolInfo = `Grade ${res[i].grade} at ${res[i].school}`;
+    const gender = res[i].gender;
+    const internalNotes = res[i].internalNotes;
+
+    const hexEncoded = ("hackchicago2018" + "/" + fname + "/" + lname + "/" + email).toUpperCase().hexEncode().toUpperCase();
+    const id = res[i]._id;
+
+    // generate HTML for each attendee
+    htmlOutput += `
+      <li><a href="javascript: expandAttendee('${id}', '${hexEncoded}')">${fname} ${lname}</a></li>
+      <div class="hidden" id="attendee-${id}">
+        <br/>Gender: ${gender}
+        <br/>Email: <a href="mailto:${email}">${email}</a>
+        ${phone !== '' ? `<br/>Phone: <a href="tel:${phone}">${phone}</a>` : ''}
+        <br/>Location: ${location}
+        <br/>Date of Signup: ${timestamp}
+        ${dietRestrictions !== '' ? `<br/><b>Diet Restrictions</b>: ${dietRestrictions}` : ''}
+        <br/>School Info: ${schoolInfo}
+        ${internalNotes !== '' ? `<br/><b>Internal Notes</b>: ${internalNotes}` : ''}
+        <br/>QR Code: <div style="text-decoration: underline;" id="attendee-qrcode-${id}">Loading..</div>
+        <br/>
+        <div class="buttons">
+          <button onclick="deleteAttendee('${id}')">Delete Attendee</button><h5 id="attendee-status-${id}"></h5>
+          <!--<button onclick="editAttendee('${id}', '${fname}', '${lname}', '${email}')" id="attendee-edit-${id}">Edit Attendee</button>-->
+        </div>
+      </div><br/>
+    `;
+  }
+  $('#view-status').text(`${res.length} ${res.length === 1 ? 'result' : 'results' }`);
+  $('#view-output').html(htmlOutput);
 }
 
 function expandAttendee(id, hexEncoded) {
@@ -280,15 +327,18 @@ function expandAttendee(id, hexEncoded) {
 }
 
 function deleteAttendee(id) {
-  // delete attendee
-  fetch(`https://hackchicago.herokuapp.com/api/v1/attendees/id/${id}`, {
-    headers: {
-      'Auth': auth_key
-    },
-    method: 'DELETE'
-  }).catch(err => $('attendee-status-'+id).text(`Error: ${err}`));
-  // refresh list
-  loadData();
+  const deletePopup = confirm('Are you sure you want to delete this attendee? PLEASE BE VERY CAREFUL!')
+  if (deletePopup) {
+    // delete attendee
+    fetch(`https://hackchicago.herokuapp.com/api/v1/attendees/id/${id}`, {
+      headers: {
+        'Auth': auth_key
+      },
+      method: 'DELETE'
+    }).catch(err => $('attendee-status-'+id).text(`Error: ${err}`));
+    // refresh list
+    loadData();
+  }
 }
 
 function editAttendee(id, fname, lname, email) {
