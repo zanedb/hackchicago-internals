@@ -199,7 +199,6 @@ function uploadData() {
         if(attendeeData[Object.keys(attendeeData)[i]] == null) attendeeData[Object.keys(attendeeData)[i]] = '';
       }
 
-      console.log(attendeeData);
       fetch('https://hackchicago.herokuapp.com/api/v1/attendees', {
         body: attendeeData,
         headers: {
@@ -275,7 +274,6 @@ function displayData(res) {
   $('#view-status').text('Loading..');
   let htmlOutput = '';
 
-  console.log('Success:', res)
   for(let i = 0; i < res.length; i++) {
     const fname = res[i].fname;
     const lname = res[i].lname;
