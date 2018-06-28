@@ -7,6 +7,9 @@
 // Handle case of empty database
 // Add checkin page
 
+// KEEP SCROLL POSITION TOO FOR NEW SEARCHES
+// USE ENTER KEY
+
 // initialize firebase
 var config = {
   apiKey: "AIzaSyDEzPcXyHB7_eutmvxMKnDI_Yu5XgRpBoY",
@@ -57,14 +60,14 @@ $(document).ready(function() {
       var uid = user.uid;
       var providerData = user.providerData;
 
-      // get Auth key
-      const query = firebase.database().ref('keys/');
-      query.once("value")
-        .then(function(snapshot) {
-          snapshot.forEach(function(childSnapshot) {
-            auth_key = childSnapshot.val();
+      if (email.split('@')[1] === 'hackchicago.io') {
+        // get Auth key
+        const query = firebase.database().ref('keys/');
+        query.once("value")
+          .then(function(snapshot) {
+            snapshot.forEach(function(childSnapshot) {
+              auth_key = childSnapshot.val();
 
-            if (email.split('@')[1] === 'hackchicago.io') {
               if(auth_key !== null) {
                 // user can access an auth key
                 $('#login-status').html('Welcome, <u>'+displayName+'</u>! You\'re logged in as <u>'+email+'</u>.<br/><button onclick="toggleSignIn();">Sign Out</button>');
@@ -73,12 +76,11 @@ $(document).ready(function() {
                 $('#login-status').html('Unfortunately, the email <u>'+email+'</u> does not have the required permissions.<br/><button onclick="toggleSignIn();">Sign Out</button>');
                 $('#all').show();
               }
-            } else {
-              $('#login-status').html('Error: Please login with a <u>hackchicago.io</u> email address.<br/><button onclick="toggleSignIn();">Sign Out</button>');
-              $('#all').show();
-            }
+            });
           });
-        });
+      } else {
+        $('#login-status').html('Error: Please login with a <u>hackchicago.io</u> email address.<br/><button onclick="toggleSignIn();">Sign Out</button>');
+      }
         
     } else {
       // User is signed out.
@@ -311,7 +313,7 @@ function displayData(res) {
         ${phone !== '' ? `<br/>Phone: <a href="tel:${phone}">${phone}</a>` : ''}
         <br/>Gender: ${gender}
         <div class="buttons">
-          ${isApproved !== '' ? `<button onclick="approveAttendee('${id}')" id="approval-button-${id}">Approve Attendee</button>` : `<button>Approved</button>`}
+          ${isApproved !== '' ? `<button onclick="approveAttendee('${id}')" id="approval-button-${id}">Approve Attendee</button><h5 id="attendee-approval-status-${id}"></h5>` : `<button>Approved</button>`}
         </div>
         <br/><a href="javascript: expandAttendee('${id}', '${hexEncoded}')">More Info</a>
         <div class="hidden" id="attendee-${id}">
@@ -361,6 +363,7 @@ function deleteAttendee(id) {
 }
 
 function approveAttendee(id) {
+  $(`#approval-button-${id}`).text('Loading..');
   // approve attendee
   fetch(`https://hackchicago.herokuapp.com/api/v1/attendees/id/${id}/approve`, {
     headers: {
@@ -370,13 +373,21 @@ function approveAttendee(id) {
   }).then(res => res.json())
     .then(res => {
       if(res.message === 'Attendee approved!') {
-        $(`approval-button-${id}`).text('Approved');
-        $(`approval-button-${id}`).attr('onclick','');
+        $(`#attendee-approval-status-${id}`).text('');
+        $(`#approval-button-${id}`).text('Approved');
+        $(`#approval-button-${id}`).attr('onclick','');
+      } else {
+        if (res.message === `You’ve already sent this email to the subscriber.`) {
+          $(`#approval-button-${id}`).text('Email already sent');
+          $(`#approval-button-${id}`).attr('onclick','');
+        } else {
+          $(`#attendee-approval-status-${id}`).text(res.message);
+        }
       }
     })
     .catch(err => $(`approval-button-${id}`).text(`Error: ${err}`));
   // refresh list
-  loadData();
+  //loadData();
 }
 
 function editAttendee(id, fname, lname, email) {
