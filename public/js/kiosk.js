@@ -298,28 +298,35 @@ function displayData(res) {
     const gender = res[i].gender;
     const internalNotes = res[i].internalNotes;
     const note = res[i].note;
+    const isApproved = res[i].isApproved;
 
     const hexEncoded = ("hackchicago2018" + "/" + fname + "/" + lname + "/" + email).toUpperCase().hexEncode().toUpperCase();
     const id = res[i]._id;
 
     // generate HTML for each attendee
     htmlOutput += `
-      <li><a href="javascript: expandAttendee('${id}', '${hexEncoded}')">${fname} ${lname}</a></li>
-      <div class="hidden" id="attendee-${id}">
-        <br/>Gender: ${gender}
+      <div id="attendee-info-${id}">
+        <li>${fname} ${lname}</li>
         <br/>Email: <a href="mailto:${email}">${email}</a>
         ${phone !== '' ? `<br/>Phone: <a href="tel:${phone}">${phone}</a>` : ''}
-        <br/>Location: ${location}
-        <br/>Date of Signup: ${timestamp}
-        ${dietRestrictions !== '' ? `<br/><b>Diet Restrictions</b>: ${dietRestrictions}` : ''}
-        <br/>School Info: ${schoolInfo}
-        ${note !== '' ? `<br/><b>Note</b>: ${note}` : ''}
-        ${internalNotes !== '' ? `<br/><b>Internal Notes</b>: ${internalNotes}` : ''}
-        <br/>QR Code: <div style="text-decoration: underline;" id="attendee-qrcode-${id}">Loading..</div>
-        <br/>
+        <br/>Gender: ${gender}
         <div class="buttons">
-          <button onclick="deleteAttendee('${id}')">Delete Attendee</button><h5 id="attendee-status-${id}"></h5>
-          <!--<button onclick="editAttendee('${id}', '${fname}', '${lname}', '${email}')" id="attendee-edit-${id}">Edit Attendee</button>-->
+          ${isApproved !== '' ? `<button onclick="approveAttendee('${id}')" id="approval-button-${id}">Approve Attendee</button>` : `<button>Approved</button>`}
+        </div>
+        <br/><a href="javascript: expandAttendee('${id}', '${hexEncoded}')">More Info</a>
+        <div class="hidden" id="attendee-${id}">
+          <br/>Location: ${location}
+          <br/>Date of Signup: ${timestamp}
+          ${dietRestrictions !== '' ? `<br/><b>Diet Restrictions</b>: ${dietRestrictions}` : ''}
+          <br/>School Info: ${schoolInfo}
+          ${note !== '' ? `<br/><b>Note</b>: ${note}` : ''}
+          ${internalNotes !== '' ? `<br/><b>Internal Notes</b>: ${internalNotes}` : ''}
+          <br/>QR Code: <div style="text-decoration: underline;" id="attendee-qrcode-${id}">Loading..</div>
+          <br/>
+          <div class="buttons">
+            <button onclick="deleteAttendee('${id}')">Delete Attendee</button><h5 id="attendee-status-${id}"></h5>
+            <!--<button onclick="editAttendee('${id}', '${fname}', '${lname}', '${email}')" id="attendee-edit-${id}">Edit Attendee</button>-->
+          </div>
         </div>
       </div><br/>
     `;
@@ -351,6 +358,25 @@ function deleteAttendee(id) {
     // refresh list
     loadData();
   }
+}
+
+function approveAttendee(id) {
+  // approve attendee
+  fetch(`https://hackchicago.herokuapp.com/api/v1/attendees/id/${id}/approve`, {
+    headers: {
+      'Auth': auth_key
+    },
+    method: 'POST'
+  }).then(res => res.json())
+    .then(res => {
+      if(res.message === 'Attendee approved!') {
+        $(`approval-button-${id}`).text('Approved');
+        $(`approval-button-${id}`).attr('onclick','');
+      }
+    })
+    .catch(err => $(`approval-button-${id}`).text(`Error: ${err}`));
+  // refresh list
+  loadData();
 }
 
 function editAttendee(id, fname, lname, email) {
