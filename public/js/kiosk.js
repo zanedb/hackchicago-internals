@@ -312,7 +312,7 @@ function displayData(res) {
         ${phone !== '' ? `<br/>Phone: <a href="tel:${phone}">${phone}</a>` : ''}
         <br/>Gender: ${gender}
         <div class="buttons">
-          ${isApproved !== '' ? `<button onclick="approveAttendee('${id}')" id="approval-button-${id}">Approve Attendee</button><h5 id="attendee-approval-status-${id}"></h5>` : `<button>Approved</button>`}
+          ${isApproved !== true ? `<button onclick="approveAttendee('${id}')" id="approval-button-${id}">Approve Attendee</button><h5 id="attendee-approval-status-${id}"></h5>` : `<button>Approved</button>`}
         </div>
         <br/><a href="javascript: expandAttendee('${id}', '${hexEncoded}')">More Info</a>
         <div class="hidden" id="attendee-${id}">
