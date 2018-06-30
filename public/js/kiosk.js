@@ -375,6 +375,7 @@ function approveAttendee(id) {
         $(`#attendee-approval-status-${id}`).text('');
         $(`#approval-button-${id}`).text('Approved');
         $(`#approval-button-${id}`).attr('onclick','');
+        $('#attendeeSearch').val('');
       } else {
         if (res.message === `You’ve already sent this email to the subscriber.`) {
           $(`#approval-button-${id}`).text('Email already sent');
