@@ -361,6 +361,11 @@ function deleteAttendee(id) {
   }
 }
 
+var successTone = document.createElement('audio');
+successTone.setAttribute('src', '../tones/success.m4a');
+var failTone = document.createElement('audio');
+failTone.setAttribute('src', '../tones/fail.m4a');
+
 function approveAttendee(id) {
   $(`#approval-button-${id}`).text('Loading..');
   // approve attendee
@@ -376,6 +381,7 @@ function approveAttendee(id) {
         $(`#approval-button-${id}`).text('Approved');
         $(`#approval-button-${id}`).attr('onclick','');
         $('#attendeeSearch').val('');
+        successTone.play();
       } else {
         if (res.message === `You’ve already sent this email to the subscriber.`) {
           $(`#approval-button-${id}`).text('Email already sent');
@@ -383,6 +389,7 @@ function approveAttendee(id) {
         } else {
           $(`#attendee-approval-status-${id}`).text(res.message);
         }
+        failTone.play();
       }
     })
     .catch(err => $(`approval-button-${id}`).text(`Error: ${err}`));
