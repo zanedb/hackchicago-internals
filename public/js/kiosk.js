@@ -83,7 +83,7 @@ $(document).ready(function() {
         
     } else {
       // User is signed out.
-      $('#login-status').html('You\'re not logged in.<br/><button onclick="toggleSignIn();">Log In with Google</button>')
+      $('#login-status').html('You\'re not logged in.<br/><a href="javascript:toggleSignIn()"><button>Log In with Google</button></a>')
     }
   });
 });
