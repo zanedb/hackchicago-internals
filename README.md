@@ -1,6 +1,6 @@
 # Hack Chicago Internal Software
 
-#### 1. Hack Chicago Attendee Kiosk (checkin, approval, etc/)
+#### 1. Hack Chicago Attendee Kiosk (checkin, approval, etc.)
   - Server Setup
     1. Install packages
     ```
