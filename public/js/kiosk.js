@@ -394,6 +394,7 @@ function approveAttendee(id) {
         $(`#attendee-approval-status-${id}`).text('');
         $(`#approval-button-${id}`).text('Approved');
         $(`#approval-button-${id}`).attr('onclick','');
+        $(`#approval-button-${id}`).removeClass('approveButton');
         $('#attendeeSearch').val('');
         successTone.play();
       } else {
