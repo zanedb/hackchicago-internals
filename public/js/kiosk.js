@@ -86,6 +86,7 @@ $(document).ready(function() {
       $('#login-status').html('You\'re not logged in.<br/><a href="javascript:toggleSignIn()"><button>Log In with Google</button></a>')
     }
   });
+
 });
 
 // login/signout user
@@ -239,8 +240,21 @@ function loadData() {
     .catch(err => $('#view-status').text('Error: '+err));
     //$('#view-status').html(`No attendees found.. <a href="javascript: toggle('#add');">Add some?</a>`);
 }
+$('#attendeeSearch').keypress(function(e) {
+  if (e.which == 13) {
+      var numButtons = $("ul#view-output button.approveButton:first-child").length;
+      if (numButtons == 1) {
+        $("ul#view-output button.approveButton:first-child").click();
+      } else if (numButtons == 0) {
+        $('#view-status').text("No matching attendee.");
+        failTone.play();
+      } else {
+        $('#view-status').text("Not the only one in list! Manually approve.");
+        failTone.play();
+      }
+      return;
+  }
 
-$('#attendeeSearch').on('input', function() {
   const searchQuery = $('#attendeeSearch').val(); 
   search(searchQuery, apiCallData);
 });
@@ -312,7 +326,7 @@ function displayData(res) {
         ${phone !== '' ? `<br/>Phone: <a href="tel:${phone}">${phone}</a>` : ''}
         <br/>Gender: ${gender}
         <div class="buttons">
-          ${isApproved !== true ? `<button onclick="approveAttendee('${id}')" id="approval-button-${id}">Approve Attendee</button><h5 id="attendee-approval-status-${id}"></h5>` : `<button>Approved</button>`}
+          ${isApproved !== true ? `<button class="approveButton" onclick="approveAttendee('${id}')" id="approval-button-${id}">Approve Attendee</button><h5 id="attendee-approval-status-${id}"></h5>` : `<button>Approved</button>`}
         </div>
         <br/><a href="javascript: expandAttendee('${id}', '${hexEncoded}')">More Info</a>
         <div class="hidden" id="attendee-${id}">
