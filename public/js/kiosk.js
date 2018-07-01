@@ -242,19 +242,21 @@ function loadData() {
 }
 $('#attendeeSearch').keypress(function(e) {
   if (e.which == 13) {
-      var numButtons = $("ul#view-output button.approveButton:first-child").length;
-      if (numButtons == 1) {
-        $("ul#view-output button.approveButton:first-child").click();
-      } else if (numButtons == 0) {
-        $('#view-status').text("No matching attendee.");
-        failTone.play();
-      } else {
-        $('#view-status').text("Not the only one in list! Manually approve.");
-        failTone.play();
-      }
-      return;
+    const numButtons = $("ul#view-output button.approveButton:first-child").length;
+    if (numButtons == 1) {
+      $("ul#view-output button.approveButton:first-child").click();
+    } else if (numButtons == 0) {
+      $('#view-status').text("No matching attendee.");
+      failTone.play();
+    } else {
+      $('#view-status').text("Not the only one in list! Manually approve.");
+      failTone.play();
+    }
+    return;
   }
+});
 
+$('#attendeeSearch').on( 'input', function() {
   const searchQuery = $('#attendeeSearch').val(); 
   search(searchQuery, apiCallData);
 });
