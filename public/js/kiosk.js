@@ -328,7 +328,7 @@ function displayData(res) {
         ${phone !== '' ? `<br/>Phone: <a href="tel:${phone}">${phone}</a>` : ''}
         <br/>Gender: ${gender}
         <div class="buttons">
-          ${isApproved !== true ? `<button class="approveButton" onclick="approveAttendee('${id}')" id="approval-button-${id}">Approve Attendee</button><h5 id="attendee-approval-status-${id}"></h5>` : `<button>Approved</button>`}
+          ${isApproved !== true ? `<button class="approveButton" onclick="approveAttendee('${id}')" id="approval-button-${id}">Approve Attendee</button><h5 id="attendee-approval-status-${id}"></h5>` : `<button style="background-color: #4CAF50;">Approved</button>`}
         </div>
         <br/><a href="javascript: expandAttendee('${id}', '${hexEncoded}')">More Info</a>
         <div class="hidden" id="attendee-${id}">
@@ -397,6 +397,7 @@ function approveAttendee(id) {
         $(`#approval-button-${id}`).text('Approved');
         $(`#approval-button-${id}`).attr('onclick','');
         $(`#approval-button-${id}`).removeClass('approveButton');
+        $(`#approval-button-${id}`).css('background-color','#4CAF50');
         $('#attendeeSearch').val('');
         successTone.play();
       } else {
