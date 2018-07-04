@@ -201,7 +201,7 @@ function uploadData() {
         if(attendeeData[Object.keys(attendeeData)[i]] == null) attendeeData[Object.keys(attendeeData)[i]] = '';
       }
 
-      fetch('https://hackchicago.herokuapp.com/api/v1/attendees', {
+      fetch('https://api.hackchicago.io/v1/attendees', {
         body: attendeeData,
         headers: {
           'Auth': auth_key
@@ -223,7 +223,7 @@ function loadData() {
   $('#view-output').html('');
   $('#view-status').text('Loading..');
 
-  fetch('https://hackchicago.herokuapp.com/api/v1/attendees', {
+  fetch('https://api.hackchicago.io/v1/attendees', {
     headers: {
       'Auth': auth_key
     },
@@ -366,7 +366,7 @@ function deleteAttendee(id) {
   const deletePopup = confirm('Are you sure you want to delete this attendee? PLEASE BE VERY CAREFUL!')
   if (deletePopup) {
     // delete attendee
-    fetch(`https://hackchicago.herokuapp.com/api/v1/attendees/id/${id}`, {
+    fetch(`https://api.hackchicago.io/v1/attendees/id/${id}`, {
       headers: {
         'Auth': auth_key
       },
@@ -385,7 +385,7 @@ failTone.setAttribute('src', '../tones/fail.m4a');
 function approveAttendee(id) {
   $(`#approval-button-${id}`).text('Loading..');
   // approve attendee
-  fetch(`https://hackchicago.herokuapp.com/api/v1/attendees/id/${id}/approve`, {
+  fetch(`https://api.hackchicago.io/v1/attendees/id/${id}/approve`, {
     headers: {
       'Auth': auth_key
     },
