@@ -389,7 +389,7 @@ function approveAttendee(id) {
     headers: {
       'Auth': auth_key
     },
-    method: 'POST'
+    method: 'GET'
   }).then(res => res.json())
     .then(res => {
       if(res.message === 'Attendee approved!') {
