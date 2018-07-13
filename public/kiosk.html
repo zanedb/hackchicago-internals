@@ -11,7 +11,18 @@
 
     <h2>Hack Chicago Kiosk</h2>
     <h3 id="login-error"></h3>
-    <h3 id="login-status">Loading..</h3>
+    <div id="login-section">
+      <h3 id="login-status"></h3>
+      <form id="loginForm">
+        <div id="emailShow">
+          <input type="email" id="email" placeholder="Email" />
+        </div>
+        <div id="tokenShow" style="display: none;">
+          <input type="text" id="token" placeholder="Token" />
+        </div>
+        <input type="submit" value="Submit">
+      </form>
+    </div>
     <div id="all">
       <div id="options" style="display:inline;">
         <h3>What would you like to do?</h3>
@@ -23,7 +34,8 @@
       </div>
       <div id="add" style="display:none;">
         <h4 id="status">Add attendees below:</h4>
-        <ul>
+        <h3>Just ask Zane.</h3>
+        <!--<ul>
           <li><h5><a href="javascript: toggle('#csv_add');">Upload a CSV to be processed</a></h5></li>
           <div id="csv_add" style="display:none;">
             <input type="file" name="roster" id="roster">
@@ -37,7 +49,7 @@
           <div id="single_add" style="display:none;">
             TODO
           </div>
-        </ul>
+        </ul>-->
       </div>
       <div id="view" style="display:none;">
         <h4>Attendees:</h4>
@@ -48,9 +60,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/5.0.4/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/5.0.4/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/5.0.4/firebase-auth.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js"></script>
     <script src="js/qr.js"></script>
     <script src="js/csv.js"></script>

@@ -7,101 +7,80 @@
 // Handle case of empty database
 // Add checkin page
 
-// USE ENTER KEY
-
-// initialize firebase
-var config = {
-  apiKey: "AIzaSyDEzPcXyHB7_eutmvxMKnDI_Yu5XgRpBoY",
-  authDomain: "hackchicago-internals.firebaseapp.com",
-  databaseURL: "https://hackchicago-internals.firebaseio.com",
-  projectId: "hackchicago-internals",
-  storageBucket: "hackchicago-internals.appspot.com",
-  messagingSenderId: "264691182006"
-};
-firebase.initializeApp(config);
-// initialize db
-const database = firebase.database();
-
-let auth_key = null;
 let apiCallData = null;
 
 // on load
 $(document).ready(function() {
-  // check for redirect token
-  firebase.auth().getRedirectResult().then(function(result) {
-    if (result.credential) {
-      // get Google Access Token
-      let googleAccessToken = result.credential.accessToken;
-      console.log('Logged in with email ' + result.user.email + ' and token '+googleAccessToken+'.');
-    } else {
-      console.log('Logged in with email '+result.user.email+' and no access token.');
-    }
-    // signed-in user info
-    let user = result.user;
-  }).catch(function(error) {
-    // handle error
-    if (error.code === 'auth/account-exists-with-different-credential') {
-      alert('You have already signed up with a different auth provider for that email. This error should not occur.');
-    } else if (error.code === 'auth/user-disabled') {
-      $('#login-error').text('Your account is disabled :/');
-    } else if (error.code !== undefined) {
-      $('#login-error').text('An error occurred: '+error.code+'.');
-    }
-  });
-
-  firebase.auth().onAuthStateChanged(function(user) {
-    if (user) {
-      // user is signed in
-      var displayName = user.displayName;
-      var email = user.email;
-      var emailVerified = user.emailVerified;
-      var photoURL = user.photoURL;
-      var uid = user.uid;
-      var providerData = user.providerData;
-
-      if (email.split('@')[1] === 'hackchicago.io') {
-        // get Auth key
-        const query = firebase.database().ref('keys/');
-        query.once("value")
-          .then(function(snapshot) {
-            snapshot.forEach(function(childSnapshot) {
-              auth_key = childSnapshot.val();
-
-              if(auth_key !== null) {
-                // user can access an auth key
-                $('#login-status').html('Welcome, <u>'+displayName+'</u>! You\'re logged in as <u>'+email+'</u>.<br/><button onclick="toggleSignIn();">Sign Out</button>');
-                $('#all').show();
-              } else {
-                $('#login-status').html('Unfortunately, the email <u>'+email+'</u> does not have the required permissions.<br/><button onclick="toggleSignIn();">Sign Out</button>');
-                $('#all').show();
-              }
-            });
-          });
-      } else {
-        $('#login-status').html('Error: Please login with a <u>hackchicago.io</u> email address.<br/><button onclick="toggleSignIn();">Sign Out</button>');
-      }
-        
-    } else {
-      // User is signed out.
-      $('#login-status').html('You\'re not logged in.<br/><a href="javascript:toggleSignIn()"><button>Log In with Google</button></a>')
-    }
-  });
-
+  // clear values
+  $('#email').val('');
+  $('#token').val('');
 });
 
 // login/signout user
 function toggleSignIn() {
-  if (!firebase.auth().currentUser) {
-    let provider = new firebase.auth.GoogleAuthProvider();
-    provider.addScope('https://www.googleapis.com/auth/plus.login');
-    // redirect user to signin
-    firebase.auth().signInWithRedirect(provider);
-  } else {
-    // if user is signed in, sign out
-    firebase.auth().signOut();
-    $('#all').hide();
-  }
+  $('#all').hide();
 }
+
+$('#loginForm').submit(function () {
+  if($('#token').val() !== '' && $('#email').val() !== '') {
+    const email = $('#email').val();
+    const token = $('#token').val();
+    fetch('http://localhost:8080/auth', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: email,
+        token: token
+      }),
+      credentials: 'include'
+    })
+      .then((data) => {
+        console.log(data)
+        if(data.status === 200) {
+          $('#login-section').hide();
+          $('#all').show();
+        } else {
+          $('#login-status').text('Invalid token.');
+        }
+        return false;
+      })
+      .catch((err) => {
+        console.log(err)
+        $('#login-status').text('Authentication failed.');
+      });
+      
+  } else if($('#email').val() !== '') {
+    const email = $('#email').val();
+    fetch('http://localhost:8080/auth', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: email
+      }),
+      credentials: 'include'
+    })
+      .then((data) => {
+        if(data.status === 200) {
+          $('#emailShow').hide();
+          $('#tokenShow').show();
+          $('#login-status').text('Check your email for a token.');
+        } else {
+          $('#login-status').text('Invalid email.');
+        }
+      })
+      .catch((err) => {
+        $('#login-status').text('Authentication failed.');
+      });
+  } else {
+    $('#login-status').text('An error occurred.');
+  }
+
+  return false;
+});
 
 function toggle(element) {
   $(element).toggle();
@@ -175,7 +154,7 @@ function display(data) {
   $("#output").html(attendeeListHTML);
 }
 
-function uploadData() {
+/*function uploadData() {
   if (master[0] != null) {
     $('#uploadAttendeesStatus').text('Uploading..');
     for (let i = 0; i < master.length; i++) {
@@ -217,20 +196,19 @@ function uploadData() {
   } else {
     $('#uploadAttendeesStatus').text('No data available.')
   }
-}
+}*/
 
 function loadData() {
   $('#view-output').html('');
   $('#view-status').text('Loading..');
 
-  fetch('https://api.hackchicago.io/v1/attendees', {
-    headers: {
-      'Auth': auth_key
-    },
-    method: 'GET'
+  fetch('http://localhost:8080/v1/attendees', {
+    method: 'GET',
+    credentials: 'include'
   }).then(res => res.json())
     .then(resJson => { 
       apiCallData = resJson;
+      console.log(resJson)
 
       if($('#attendeeSearch').val() !== '')
         search($('#attendeeSearch').val(), apiCallData);
